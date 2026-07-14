@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: springboot-mybatis-demo
+  profiles:
+    active: dev
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.mvp.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  port: 8080
+
+# MyBatis-Plus配置
+mybatis-plus:
+  # mapper xml文件路径（如果写自定义SQL用）
+  mapper-locations: classpath:mapper/**/*.xml
+  # 实体类别名包
+  type-aliases-package: com.mes.entity
+  configuration:
+    map-underscore-to-camel-case: true # 下划线自动转驼峰（product_seq_num → productSeqNum）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印执行SQL
+  global-config:
+    db-config:
+      id-type: auto # 主键自增

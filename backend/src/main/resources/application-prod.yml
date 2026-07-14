@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://prod-db:3306/mvp_prod?allowPublicKeyRetrieval=false&useSSL=true&serverTimezone=Asia/Shanghai&verifyServerCertificate=true
+    username: prod_user
+    password: prod_password
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      idle-timeout: 600000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+logging:
+  level:
+    com.mvp: INFO
+    org.mybatis: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/mvp-prod.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json
+    min-response-size: 2048
