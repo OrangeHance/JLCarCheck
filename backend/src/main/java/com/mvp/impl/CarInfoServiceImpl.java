@@ -18,7 +18,9 @@ public class CarInfoServiceImpl implements CarInfoService {
     CarInfoMapper carInfoMapper;
 
     @Override
-    public MesCarInfo carCheckSearch(MesCarInfo mesCarInfo) {
-        return null;
+    public MesCarInfo getCarByBarCode(String job, String vin) {
+        //根据job查询需要检查的车辆信息
+        List<MesCarInfo> infos = carInfoMapper.selectByjob(job);
+        return infos.get(0);
     }
 }

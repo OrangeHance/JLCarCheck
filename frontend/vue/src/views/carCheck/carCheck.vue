@@ -6,8 +6,28 @@
         v-model="barCode"
         class="bar-input"
         placeholder="请输入条码"
+        @keyup.enter="searchCarInfo"
       />
+      <el-button type="primary" @click="searchCarInfo">查询车辆</el-button>
       <el-button type="warning" size="large" @click="handleSubmit">提交</el-button>
+    </div>
+
+    <!-- 条码下方 车辆信息卡片 -->
+    <div class="car-card" v-if="carInfo">
+      <h3>车辆详情</h3>
+      <div class="car-row">
+        <span class="label">生产流水号：</span>
+        <span>{{ carInfo.productSeqNum }}</span>
+      </div>
+      <div class="car-row">
+        <span class="label">VIN码：</span>
+        <span>{{ carInfo.productNum }}</span>
+      </div>
+    
+      <div class="car-row">
+        <span class="label">配置：</span>
+        <span>{{ carInfo.config }}</span>
+      </div>
     </div>
 
     <!-- 工单标题描述 -->
@@ -21,11 +41,12 @@
       <div class="check-list">
         <div class="check-item" v-for="(item, index) in checkList" :key="index">
           <!-- 检查项标题 -->
-          <div class="item-label">{{ item.label }}</div>
+          <div class="item-label">{{ item.desc }}</div>
+          <div hidden>{{ item.id }}</div>
           <div class="item-content">
-            <!-- 图片（无图片则隐藏） -->
-            <div v-if="item.imgUrl" class="item-img">
-              <img :src="item.imgUrl" alt="质检图片" />
+            <!-- 500*200图片容器 -->
+            <div class="item-img-box">
+              <img :src="item.url" />
             </div>
             <!-- OK / NOK 单选Radio组，互斥选择 -->
             <div class="btn-group">
@@ -42,14 +63,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { getCarCheckItems,getCarByBarCode} from '../../api/carCheckList'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const jobCode = route.meta.job as string
+
+// 车辆信息类型
+interface CarInfo {
+  productSeqNum: string
+  vin: string
+  productNum: string
+  config: string
+}
 
 // 质检项类型定义
 interface CheckItem {
-  label: string
-  imgUrl?: string
+  id: number
+  desc: string
+  url?: string
   result: null | '0' | '1' // radio输出字符串0/1，兼容校验逻辑
 }
 
@@ -59,17 +93,12 @@ interface WorkInfo {
   desc: string
 }
 
-// 接口返回整体数据类型
-interface ApiResponse {
-  barCode: string
-  workInfo: WorkInfo
-  checkList: CheckItem[]
-}
-
 // 加载状态
 const loading = ref<boolean>(false)
 // 条码：默认可输入，初始为空
 const barCode = ref<string>('')
+// 车辆信息
+const carInfo = ref<CarInfo | null>(null)
 
 // 工单基础信息
 const workInfo = reactive<WorkInfo>({
@@ -80,22 +109,42 @@ const workInfo = reactive<WorkInfo>({
 // 质检列表数据
 const checkList = reactive<CheckItem[]>([])
 
-// 页面加载自动查询接口
+// 根据条码查询车辆
+const searchCarInfo = async () => {
+  try {
+     const res = await getCarByBarCode({ job: jobCode, vin: barCode.value })
+    if (res.code === 200) {
+      carInfo.value = res.data
+    } else {
+      ElMessage.info('未匹配到该条码车辆信息')
+      carInfo.value = null
+    }
+  } catch (err) {
+    ElMessage.error('查询车辆数据失败')
+    console.error(err)
+    carInfo.value = null
+  }
+}
+
+// 页面加载自动查询检查项
 const getCheckData = async () => {
   loading.value = true
   try {
-    // ========== 替换为你真实后端接口地址 ==========
-    const res = await axios.get<ApiResponse>('/api/quality/getCheckInfo', {
-      params: {
-        // 可传页面参数，如工单ID、条码等
-      }
-    })
-    const data = res.data
-    // 赋值页面数据
-    barCode.value = data.barCode
-    workInfo.title = data.workInfo.title
-    workInfo.desc = data.workInfo.desc
-    checkList.splice(0, checkList.length, ...data.checkList)
+    const res = await getCarCheckItems({ job: jobCode })
+    // 接口成功判断
+    if (res.code === 200) {
+      const data = res.data // data 是 CheckInfoItems[] 数组
+      // 格式化数据，补齐result默认null
+      const formatList = data.map(d => ({
+        id: d.id,     
+        desc: d.desc,
+        url: d.url,
+        result: null
+      }))
+      checkList.splice(0, checkList.length, ...formatList)
+    } else {
+      ElMessage.warning(res.msg || '获取检查项失败')
+    }
   } catch (err) {
     ElMessage.error('加载质检数据失败，请刷新重试')
     console.error('接口请求错误：', err)
@@ -104,13 +153,31 @@ const getCheckData = async () => {
   }
 }
 
+// 切换左侧菜单重新加载页面数据、清空车辆信息
+watch(
+  () => route.meta.job,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      getCheckData()
+      barCode.value = ''
+      carInfo.value = null
+    }
+  }
+)
+
 // 页面挂载时执行接口查询
 onMounted(() => {
   getCheckData()
+  searchCarInfo()
 })
 
 // 提交校验
 const handleSubmit = () => {
+  // 校验：必须先查询车辆
+  if (!carInfo.value) {
+    ElMessage.warning('请输入条码并查询车辆后再提交')
+    return
+  }
   // 校验所有项是否全部选择
   const unSelect = checkList.some(item => item.result === null)
   if (unSelect) {
@@ -120,9 +187,12 @@ const handleSubmit = () => {
   // 组装提交参数，转数字兼容后端
   const submitData = {
     barCode: barCode.value,
+    carInfo: carInfo.value,
     workInfo,
     checkList: checkList.map(item => ({
-      ...item,
+      id: item.id,
+      desc: item.desc,
+      url: item.url,
       result: Number(item.result)
     }))
   }
@@ -149,12 +219,35 @@ const handleSubmit = () => {
   display: flex;
   gap: 16px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex-shrink: 0;
 }
 .bar-input {
   flex: 1;
 }
+
+/* 车辆信息卡片样式 */
+.car-card {
+  background-color: #f7f9fc;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.car-card h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  color: #222;
+}
+.car-row {
+  display: flex;
+  margin: 8px 0;
+  font-size: 15px;
+}
+.car-row .label {
+  width: 130px;
+  color: #606266;
+}
+
 .title-area {
   margin-bottom: 24px;
   flex-shrink: 0;
@@ -189,20 +282,33 @@ const handleSubmit = () => {
 .item-label {
   font-size: 17px;
   margin-bottom: 10px;
+  margin-left: -220px;
 }
 .item-content {
   display: flex;
   gap: 20px;
   align-items: center;
 }
-.item-img {
-  width: 60%;
+
+/* 500*200图片外框 */
+.item-img-box {
+  width: 500px;
+  height: 200px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
 }
-.item-img img {
-  width: 100%;
-  display: block;
-  border-radius: 4px;
+.item-img-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
 }
+
 .btn-group {
   display: flex;
   flex-direction: column;

@@ -37,7 +37,7 @@
           <template #footer>当前登录人</template>
           <el-button type="danger" round @click="logout">登出</el-button>
         </el-card>
-        <router-view></router-view>
+        <router-view :key="$route.fullPath"></router-view>
       </div>
     </div>
   </div>

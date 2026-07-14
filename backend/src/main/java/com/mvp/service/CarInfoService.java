@@ -8,5 +8,5 @@ import org.springframework.stereotype.Service;
 @Component
 public interface CarInfoService {
 
-     MesCarInfo carCheckSearch(MesCarInfo mesCarInfo);
+     MesCarInfo getCarByBarCode(String job,String vin);
 }

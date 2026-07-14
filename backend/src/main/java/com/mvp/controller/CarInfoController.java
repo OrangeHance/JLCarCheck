@@ -5,13 +5,10 @@ import com.mvp.common.Result;
 import com.mvp.dto.MesCarInfo;
 import com.mvp.service.CarInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/WareHouseIn")
+@RequestMapping("/carInfo")
 public class CarInfoController {
 
 
@@ -20,11 +17,13 @@ public class CarInfoController {
 
     /**
      * 查询待检查车辆信息
-     * @param mesCarInfo
+     * @param job
+     * @param vin
      * @return
      */
-    @PostMapping("/carCheckSearch")
-    public Result<MesCarInfo> carCheckSearch(@RequestBody MesCarInfo mesCarInfo) {
-        return Result.success(carInfoService.carCheckSearch(mesCarInfo));
+    @GetMapping("/getCarByBarCode")
+    public Result<MesCarInfo> getCarByBarCode(@RequestParam String job,@RequestParam String vin) {
+        MesCarInfo info = carInfoService.getCarByBarCode(job,vin);
+        return Result.success(info);
     }
 }

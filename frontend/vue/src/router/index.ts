@@ -12,6 +12,48 @@ const routes = [
       {
         path: "/aJobMenu",
         component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "A"
+        }
+      },
+      {
+        path: "/bJobMenu",
+        component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "B"
+        }
+      },
+      {
+        path: "/cJobMenu",
+        component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "C"
+        }
+      },
+      {
+        path: "/dJobMenu",
+        component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "D"
+        }
+      },
+      {
+        path: "/eJobMenu",
+        component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "E"
+        }
+      },
+      {
+        path: "/fJobMenu",
+        component: () => import("../views/carCheck/carCheck.vue"),
+        meta: {
+            job: "F"
+        }
+      },
+      {
+        path: "/checkItems",
+        component: () => import("../views/checkItems.vue"),
       },
     ],
    },
