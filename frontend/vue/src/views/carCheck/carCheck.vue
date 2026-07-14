@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getCarCheckItems,getCarByBarCode} from '../../api/carCheckList'
+import { getCarCheckItems,getCarByBarCode,submitQualityCheck} from '../../api/carCheckList'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -172,35 +172,48 @@ onMounted(() => {
 })
 
 // 提交校验
-const handleSubmit = () => {
-  // 校验：必须先查询车辆
+const handleSubmit = async () => {
+  // 1. 校验是否查到车辆
   if (!carInfo.value) {
     ElMessage.warning('请输入条码并查询车辆后再提交')
     return
   }
-  // 校验所有项是否全部选择
+  // 2. 校验所有检查项都已选择OK/NOK
   const unSelect = checkList.some(item => item.result === null)
   if (unSelect) {
     ElMessage.warning('存在未判定的检查项，请全部选择OK/NOK后再提交')
     return
   }
-  // 组装提交参数，转数字兼容后端
-  const submitData = {
-    barCode: barCode.value,
-    carInfo: carInfo.value,
-    workInfo,
-    checkList: checkList.map(item => ({
-      id: item.id,
-      desc: item.desc,
-      url: item.url,
-      result: Number(item.result)
-    }))
+
+  try {
+    // 组装后端需要的完整提交参数
+    const submitParams = {
+      barCode: barCode.value,
+      jobCode: route.meta.job as string, // 路由meta里的岗位 A/B/C...
+      carInfo: carInfo.value,
+      checkList: checkList.map(item => ({
+        id: item.id,
+        desc: item.desc,
+        url: item.url,
+        result: Number(item.result)
+      }))
+    }
+
+    // 调用提交接口
+    const res = await submitQualityCheck(submitParams)
+    if (res.code === 200) {
+      ElMessage.success('提交保存成功！')
+      // 提交成功后清空页面数据，可选
+      barCode.value = ''
+      carInfo.value = null
+      checkList.splice(0, checkList.length)
+    }
+  } catch (err) {
+    ElMessage.error('提交失败，请重试')
+    console.error('提交异常：', err)
   }
-  console.log('提交数据：', submitData)
-  ElMessage.success('提交成功！')
-  // 提交接口示例
-  // await axios.post('/api/quality/submit', submitData)
 }
+
 </script>
 
 <style scoped>

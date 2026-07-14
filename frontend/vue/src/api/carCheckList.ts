@@ -36,3 +36,49 @@ export function getCarByBarCode(params: carCheckListParams): Promise<ResponseDat
     params
   })
 }
+
+// 车辆信息子类型
+export interface CarInfoDTO {
+  id: number
+  productSeqNum: string
+  productNum: string
+  stationCode: string
+  materialCode: string
+  model: string
+  series: string
+  config: string
+  selection: string
+  engineType: string
+}
+
+// 工单信息
+export interface WorkInfoDTO {
+  title: string
+  desc: string
+}
+
+// 检查项
+export interface CheckItemDTO {
+  id: number
+  desc: string
+  url: string
+  result: number | null // 0 NOK 1 OK
+}
+
+// 提交整体参数
+export interface QualityCheckSubmitDTO {
+  barCode: string
+  jobCode: string // 岗位编码，后端接收
+  carInfo: CarInfoDTO
+  workInfo: WorkInfoDTO
+  checkList: CheckItemDTO[]
+}
+
+// 提交质检保存接口
+export function submitQualityCheck(data: QualityCheckSubmitDTO): Promise<ResponseData<string>> {
+  return request({
+    url: '/checkHis/submit',
+    method: 'POST',
+    data
+  })
+}

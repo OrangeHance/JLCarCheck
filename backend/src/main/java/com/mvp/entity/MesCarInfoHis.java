@@ -1,13 +1,16 @@
 package com.mvp.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 
 /**
  * 车辆信息历史表 mescarinfohis
  */
+@Builder
 @Data
 @TableName("mescarinfohis")
 public class MesCarInfoHis {
@@ -21,25 +24,17 @@ public class MesCarInfoHis {
     /**
      * 产品序列码
      */
+    @TableField("productSeqNum")
     private String productSeqNum;
 
     /**
      * 车架号
      */
+    @TableField("productNum")
     private String productNum;
 
+    @TableField("stationCode")
     private String stationCode;
-
+    @TableField("materialCode")
     private String materialCode;
-
-    private String checkItem1;
-
-    private String checkItem2;
-
-    private String checkItem3;
-
-    private String checkItem4;
-
-    private String checkItem5;
-
 }
