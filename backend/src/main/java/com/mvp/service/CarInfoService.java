@@ -1,6 +1,7 @@
 package com.mvp.service;
 
 import com.mvp.dto.MesCarInfo;
+import com.mvp.dto.QualityCheckSubmitDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -8,5 +9,7 @@ import org.springframework.stereotype.Service;
 @Component
 public interface CarInfoService {
 
-     MesCarInfo getCarByBarCode(String job,String vin);
+     MesCarInfo getCarByBarCode(String job);
+
+    QualityCheckSubmitDTO findCarInfoAndcCheck(String job, String vin);
 }

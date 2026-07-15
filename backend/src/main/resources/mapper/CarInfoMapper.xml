@@ -4,6 +4,21 @@
 <mapper namespace="com.mvp.mapper.CarInfoMapper">
 
     <select id="selectByjob" resultType="com.mvp.dto.MesCarInfo">
-        select * from mescarinfo order by productSeqNum
+        select n.*
+        from mescarinfo n
+        left join mescarinfohis m
+        on m.productNum = n.productNum
+        and m.job = #{job}
+        where m.productNum is null
+        order by n.productSeqNum;
+    </select>
+    <select id="findCarInfoAndcCheck" resultType="com.mvp.entity.CheckResult">
+        select
+        c.*
+        from checkresult c
+        left join mescarinfohis m
+        on c.hisId = m.id
+        and c.job = #{job}
+        where m.productNum = #{vin}
     </select>
 </mapper>

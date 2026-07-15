@@ -39,6 +39,7 @@ public class CheckHisController {
                 .productNum(dto.getCarInfo().getProductNum())
                 .stationCode(dto.getCarInfo().getStationCode())
                 .materialCode(dto.getCarInfo().getMaterialCode())
+                .job(job)
                 .build();
         int id = mesCarInfoHisService.insertCheckResult(his);
 

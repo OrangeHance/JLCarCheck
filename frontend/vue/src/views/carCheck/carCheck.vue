@@ -8,7 +8,7 @@
         placeholder="请输入条码"
         @keyup.enter="searchCarInfo"
       />
-      <el-button type="primary" @click="searchCarInfo">查询车辆</el-button>
+      <el-button type="primary" @click="findCarInfoAndcCheck">查询车辆</el-button>
       <el-button type="warning" size="large" @click="handleSubmit">提交</el-button>
     </div>
 
@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getCarCheckItems,getCarByBarCode,submitQualityCheck} from '../../api/carCheckList'
+import { getCarCheckItems,getCarByBarCode,submitQualityCheck,findCarInfo} from '../../api/carCheckList'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -109,6 +109,36 @@ const workInfo = reactive<WorkInfo>({
 // 质检列表数据
 const checkList = reactive<CheckItem[]>([])
 
+
+
+const findCarInfoAndcCheck = async () => {
+  try {
+     const res = await findCarInfo({ job: jobCode, vin: barCode.value })
+    if (res.code === 200) {
+      carInfo.value = res.data.carInfo
+      if(res.data.checkList.length === 0){
+        checkList.forEach((item, index) => {
+            item.result = ''
+      })
+      }
+      checkList.forEach((item, index) => {
+        res.data.checkList.forEach((checkItem) => {
+          if (checkItem.id === item.id) {
+            item.result = String(checkItem.result)
+          }
+        })
+      })
+    console.log(checkList);
+    } else {
+      ElMessage.info('未匹配到该条码车辆信息')
+      carInfo.value = null
+    }
+  } catch (err) {
+    ElMessage.error('查询车辆数据失败')
+    console.error(err)
+    carInfo.value = null
+  }
+}
 // 根据条码查询车辆
 const searchCarInfo = async () => {
   try {
@@ -207,6 +237,8 @@ const handleSubmit = async () => {
       barCode.value = ''
       carInfo.value = null
       checkList.splice(0, checkList.length)
+      getCheckData()
+      searchCarInfo()
     }
   } catch (err) {
     ElMessage.error('提交失败，请重试')

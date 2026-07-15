@@ -57,6 +57,13 @@ export interface WorkInfoDTO {
   desc: string
 }
 
+
+// JOB VIN
+export interface findCarInfoAndcCheckParams {
+  job: string
+  vin: string
+}
+
 // 检查项
 export interface CheckItemDTO {
   id: number
@@ -82,3 +89,16 @@ export function submitQualityCheck(data: QualityCheckSubmitDTO): Promise<Respons
     data
   })
 }
+
+
+
+// 提交质检保存接口
+export function findCarInfo(params: findCarInfoAndcCheckParams): Promise<ResponseData<QualityCheckSubmitDTO>> {
+   return request({
+    url: '/carInfo/findCarInfoAndcCheck',
+    method: 'GET',
+    // get请求参数放params
+    params
+  })
+}
+

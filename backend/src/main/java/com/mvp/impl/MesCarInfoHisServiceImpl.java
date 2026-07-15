@@ -15,7 +15,7 @@ public class MesCarInfoHisServiceImpl implements MesCarInfoHisService {
 
     @Override
     public int insertCheckResult(MesCarInfoHis his) {
-        int id = mapper.insert(his);
-        return 0;
+        mapper.insert(his);
+        return Math.toIntExact(his.getId());
     }
 }

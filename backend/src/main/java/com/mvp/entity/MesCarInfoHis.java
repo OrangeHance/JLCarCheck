@@ -37,4 +37,7 @@ public class MesCarInfoHis {
     private String stationCode;
     @TableField("materialCode")
     private String materialCode;
+    @TableField("job")
+    private String job;
+
 }
