@@ -1,10 +1,14 @@
 package com.mvp.controller;
 
 
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mvp.common.Result;
+import com.mvp.dto.MesCarInfo;
 import com.mvp.dto.QualityCheckSubmitDTO;
 import com.mvp.entity.CheckResult;
 import com.mvp.entity.MesCarInfoHis;
+import com.mvp.mapper.MesCarInfoHisMapper;
 import com.mvp.service.CheckresultService;
 import com.mvp.service.MesCarInfoHisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @RequestMapping("/checkHis")
@@ -25,6 +30,9 @@ public class CheckHisController {
 
     @Autowired
     CheckresultService checkresultService;
+
+    @Autowired
+    MesCarInfoHisMapper mesCarInfoHisMapper;
 
     @PostMapping("/submit")
     public Result<String> submitCheck(@RequestBody QualityCheckSubmitDTO dto) {
@@ -40,6 +48,8 @@ public class CheckHisController {
                 .stationCode(dto.getCarInfo().getStationCode())
                 .materialCode(dto.getCarInfo().getMaterialCode())
                 .job(job)
+                .creater(loginUser)
+                .createTime(now)
                 .build();
         int id = mesCarInfoHisService.insertCheckResult(his);
 

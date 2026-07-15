@@ -46,7 +46,7 @@
           <div class="item-content">
             <!-- 500*200图片容器 -->
             <div class="item-img-box">
-              <img :src="item.url" />
+              <img :src="item.url" alt="检测图" />
             </div>
             <!-- OK / NOK 单选Radio组，互斥选择 -->
             <div class="btn-group">
@@ -109,7 +109,10 @@ const workInfo = reactive<WorkInfo>({
 // 质检列表数据
 const checkList = reactive<CheckItem[]>([])
 
-
+const getDynamicImg = async (fileName: string) => {
+  const res = await import(`@/assets/image/${fileName}`)
+  return res.default
+}
 
 const findCarInfoAndcCheck = async () => {
   try {
@@ -239,6 +242,8 @@ const handleSubmit = async () => {
       checkList.splice(0, checkList.length)
       getCheckData()
       searchCarInfo()
+    } else {
+      ElMessage.error(res.msg || '提交失败，请重试')
     }
   } catch (err) {
     ElMessage.error('提交失败，请重试')
@@ -349,10 +354,12 @@ const handleSubmit = async () => {
   background: #f8f8f8;
 }
 .item-img-box img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
+  max-width: 90%;
+  max-height: 90%;
+  /* 替换 cover，完整显示图片不裁剪 */
+  object-fit: contain;
 }
+
 
 .btn-group {
   display: flex;

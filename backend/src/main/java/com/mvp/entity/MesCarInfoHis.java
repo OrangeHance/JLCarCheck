@@ -40,4 +40,10 @@ public class MesCarInfoHis {
     @TableField("job")
     private String job;
 
+    @TableField("creater")
+    private String creater;
+
+    @TableField("createTime")
+    private String createTime;
+
 }

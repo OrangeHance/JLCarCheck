@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mvp.dto.MesCarInfo;
 import com.mvp.dto.QualityCheckSubmitDTO;
 import com.mvp.entity.CheckResult;
+import com.mvp.entity.MesCarInfoHis;
 import com.mvp.mapper.CarInfoMapper;
 import com.mvp.mapper.CheckresultMapper;
+import com.mvp.mapper.MesCarInfoHisMapper;
 import com.mvp.service.CarInfoService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,7 +30,7 @@ public class CarInfoServiceImpl implements CarInfoService {
     CarInfoMapper carInfoMapper;
 
     @Autowired
-    CheckresultMapper checkresultMapper;
+    MesCarInfoHisMapper hisMapper;
 
     @Override
     public MesCarInfo getCarByBarCode(String job) {
@@ -44,9 +47,19 @@ public class CarInfoServiceImpl implements CarInfoService {
                 Wrappers.lambdaQuery(MesCarInfo.class)
                         .eq(MesCarInfo::getProductNum, vin)
         );
+        //查询最晚的历史记录
+        List<MesCarInfoHis> his = hisMapper.selectList(
+                Wrappers.lambdaQuery(MesCarInfoHis.class)
+                        .eq(MesCarInfoHis::getProductNum, vin)
+                        .orderByDesc(MesCarInfoHis::getCreateTime)
+        );
         //根据vin查询是否有检查结果
         List<CheckResult> result = carInfoMapper.findCarInfoAndcCheck(job,vin);
-        System.out.println(result);
+
+        List<CheckResult> filterList = result.stream()
+                .filter(item -> item.getHisId() != his.get(0).getId().toString())
+                .collect(Collectors.toList());
+
         QualityCheckSubmitDTO.CarInfoDTO  carInfoDTO = new QualityCheckSubmitDTO.CarInfoDTO();
         if (ObjectUtils.isNotEmpty(info)){
             BeanUtils.copyProperties(info,carInfoDTO);
@@ -54,7 +67,7 @@ public class CarInfoServiceImpl implements CarInfoService {
         }
         dto.setCarInfo(carInfoDTO);
         List<QualityCheckSubmitDTO.CheckItemDTO> checkList =  new ArrayList<>();
-        for (CheckResult checkResult : result) {
+        for (CheckResult checkResult : filterList) {
             QualityCheckSubmitDTO.CheckItemDTO  checkItemDTO = new QualityCheckSubmitDTO.CheckItemDTO();
             checkItemDTO.setId(Integer.valueOf(checkResult.getItemId()));
             checkItemDTO.setResult(Integer.valueOf(checkResult.getIsOk()));
