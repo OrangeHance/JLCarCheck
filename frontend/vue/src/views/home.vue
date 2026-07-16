@@ -2,7 +2,7 @@
   <div class="home-full">
     <!-- 左侧导航（永远固定不动） -->
     <div class="sidebar">
-      <div class="logo">MVP管理系统</div>
+      <div class="logo">JL车辆检测管理系统</div>
       
       <el-menu
       :default-active="$route.path"
