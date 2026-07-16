@@ -1,13 +1,11 @@
 package com.mvp.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.mvp.dto.CarPullReqDTO;
-import com.mvp.dto.MesCarInfo;
-import com.mvp.dto.TrackApiResp;
-import com.mvp.dto.TrackDataItem;
+import com.mvp.dto.*;
 import com.mvp.mapper.MesCarInfoMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,9 +20,9 @@ import java.util.List;
 public class TrackPullScheduleTask {
 
     private final RestTemplate restTemplate;
-    // 接口地址配置在yml
-    private final String TRACK_API_URL = "http://localhost:8080";
 
+    // 接口地址配置在yml
+    private final String TRACK_API_URL = "";
 
     @Autowired
     MesCarInfoMapper mesCarInfoMapper;
@@ -53,19 +51,24 @@ public class TrackPullScheduleTask {
 
             // 3. 转换入库实体，批量插入（根据productSeqNum唯一键去重）
             List<TrackDataItem> dataList = resp.getData();
+            LocalDateTime now = LocalDateTime.now();
             for (TrackDataItem item : dataList) {
-                MesCarInfo track = item.getMesCarInfo();
+                ProductTrackInfo track = item.getProductTrackInfo();
+                track.setPullTime(now);
+                track.setSiteCode("I033");
+
                 // 先查是否已存在，不存在插入；存在更新（唯一键 productSeqNum）
                 MesCarInfo exist = mesCarInfoMapper.selectOne(
                         Wrappers.lambdaQuery(MesCarInfo.class)
-                        .eq(MesCarInfo::getProductNum, item.getMesCarInfo().getProductNum())
-                );
+                                .eq(MesCarInfo::getProductNum, item.getProductTrackInfo().getProductNum()));
+                MesCarInfo info = new MesCarInfo();
+                BeanUtils.copyProperties(track,info);
                 if (exist == null) {
-                    mesCarInfoMapper.insert(track);
-                    log.debug("新增车辆追踪记录:{}", track.getProductSeqNum());
+                    mesCarInfoMapper.insert(info);
+                    log.debug("新增车辆追踪记录:{}", info.getProductSeqNum());
                 } else {
-                    mesCarInfoMapper.updateById(track);
-                    log.debug("更新车辆追踪记录:{}", track.getProductSeqNum());
+                    mesCarInfoMapper.updateById(info);
+                    log.debug("更新车辆追踪记录:{}", info.getProductSeqNum());
                 }
             }
             log.info("T00本次拉取完成，共处理{}条记录", dataList.size());

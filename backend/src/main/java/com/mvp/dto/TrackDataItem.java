@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class TrackDataItem {
-    private MesCarInfo mesCarInfo;
+    private ProductTrackInfo productTrackInfo;
 
 }
