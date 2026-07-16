@@ -1,4 +1,60 @@
--- menu 定义
+-- sys.carcheckitems 定义
+
+CREATE TABLE `carcheckitems` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `desc` varchar(100) DEFAULT NULL COMMENT '检查项描述',
+  `url` varchar(100) DEFAULT NULL COMMENT '检查项图片',
+  `create` varchar(100) DEFAULT NULL COMMENT '创建人',
+  `createTime` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  `update` varchar(100) DEFAULT NULL,
+  `updateTime` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='检测项';
+
+
+-- sys.carinfo 定义
+
+CREATE TABLE `carinfo` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `productSeqNum` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '产品序列码',
+  `productNum` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '车架号',
+  `stationCode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `materialCode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `series` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `config` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `selection` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `engineType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- sys.checkinfo 定义
+
+CREATE TABLE `checkinfo` (
+  `job` varchar(100) DEFAULT NULL COMMENT '岗位',
+  `id` varchar(100) DEFAULT NULL,
+  `checkItemsId` varchar(100) DEFAULT NULL COMMENT '检查配置项的id'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- sys.checkresult 定义
+
+CREATE TABLE `checkresult` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `job` varchar(100) DEFAULT NULL COMMENT '岗位',
+  `itemId` varchar(100) DEFAULT NULL COMMENT '检查项id',
+  `isOk` varchar(100) DEFAULT NULL COMMENT 'ok or nok',
+  `creater` varchar(100) DEFAULT NULL,
+  `createTime` varchar(100) DEFAULT NULL,
+  `updater` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `updateTime` varchar(100) DEFAULT NULL,
+  `hisId` varchar(100) DEFAULT NULL COMMENT '结果id关联his表',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- sys.menu 定义
 
 CREATE TABLE `menu` (
   `menu_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
@@ -6,67 +62,36 @@ CREATE TABLE `menu` (
   `create_time` datetime DEFAULT NULL,
   `id` int NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单';
 
 
--- `user` 定义
+-- sys.mescarinfo 定义
 
-CREATE TABLE `user` (
-  `user_id` int NOT NULL AUTO_INCREMENT,
-  `user_name` varchar(100) NOT NULL,
-  `create_time` timestamp NULL DEFAULT NULL,
-  `update_time` timestamp NULL DEFAULT NULL,
-  `status` int DEFAULT NULL COMMENT '用户状态',
-  `password` varchar(100) NOT NULL COMMENT '密码',
-  `email` varchar(100) DEFAULT NULL,
-  `phone` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
--- warehouse 定义
-
-CREATE TABLE `warehouse` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `goods_name` varchar(100) NOT NULL COMMENT '商品名称',
-  `goods_code` varchar(50) NOT NULL COMMENT '商品编码（唯一）',
-  `spec` varchar(100) DEFAULT NULL COMMENT '规格',
-  `quantity` int NOT NULL COMMENT '入库数量',
-  `in_date` date NOT NULL COMMENT '入库日期',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_goods_code` (`goods_code`) COMMENT '商品编码唯一'
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='商品入库表';
+CREATE TABLE `mescarinfo` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `productSeqNum` varchar(100) DEFAULT NULL COMMENT '产品序列码',
+  `productNum` varchar(100) DEFAULT NULL COMMENT '车架号',
+  `stationCode` varchar(100) DEFAULT NULL,
+  `materialCode` varchar(100) DEFAULT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `series` varchar(100) DEFAULT NULL,
+  `config` varchar(100) DEFAULT NULL,
+  `selection` varchar(100) DEFAULT NULL,
+  `engineType` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
--- warehouse_in 定义
+-- sys.mescarinfohis 定义
 
-CREATE TABLE `warehouse_in` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `goods_code` varchar(50) NOT NULL COMMENT '商品编码（唯一）',
-  `spec` varchar(100) DEFAULT NULL COMMENT '规格',
-  `quantity` int NOT NULL COMMENT '入库数量',
-  `in_date` date NOT NULL COMMENT '入库日期',
-  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_goods_code` (`goods_code`) COMMENT '商品编码唯一'
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='商品入库表';
-
-
--- warehouse_out 定义
-
-CREATE TABLE `warehouse_out` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `goods_code` varchar(64) NOT NULL COMMENT '商品编码',
-  `out_quantity` int NOT NULL COMMENT '出库数量',
-  `out_date` date NOT NULL COMMENT '出库日期',
-  `remark` varchar(512) DEFAULT NULL COMMENT '备注',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_goods_code` (`goods_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='出库记录表';
+CREATE TABLE `mescarinfohis` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `productSeqNum` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '产品序列码',
+  `productNum` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '车架号',
+  `stationCode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `materialCode` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `job` varchar(100) DEFAULT NULL,
+  `creater` varchar(100) DEFAULT NULL,
+  `createTime` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
